@@ -1,4 +1,30 @@
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
+  // باقي الكود كما هو تماماً
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    const rawData = await response.json();
+
+    const cleanData = rawData.slice(0, 15).map(item => ({
+      id: item.id,
+      title: item.title,
+      url: `https://example.com/details/${item.id}`
+    }));
+
+    res.status(200).json({ success: true, count: cleanData.length, items: cleanData });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
   // 1. تفعيل ترويسات CORS بالكامل للسماح لأي صفحة بطلب البيانات
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
